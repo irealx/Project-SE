@@ -173,11 +173,11 @@ Metrics used:
 # Editable placeholders (replace with your real values)
 with st.expander("Fill in metrics (edit these values)", expanded=True):
     st.markdown("### Ensemble (Voting)")
-    ens_acc = st.number_input("Ensemble Accuracy", value=0.00, step=0.01, format="%.4f")
-    ens_prec = st.number_input("Ensemble Precision", value=0.00, step=0.01, format="%.4f")
-    ens_rec = st.number_input("Ensemble Recall", value=0.00, step=0.01, format="%.4f")
-    ens_f1 = st.number_input("Ensemble F1", value=0.00, step=0.01, format="%.4f")
-    ens_auc = st.number_input("Ensemble ROC-AUC", value=0.00, step=0.01, format="%.4f")
+    ens_acc = 0.554
+    ens_prec = 0.611
+    ens_rec = 0.625
+    ens_f1 = 0.618
+    ens_auc = 0.569
 
     st.markdown("### Neural Network")
     nn_acc = st.number_input("NN Accuracy", value=0.5270, step=0.01, format="%.4f")
