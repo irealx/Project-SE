@@ -5,6 +5,89 @@ import tensorflow as tf
 
 st.set_page_config(page_title="Gold Direction Prediction", layout="centered")
 
+st.markdown("""
+<style>
+            
+/* Import font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+html, body, [class*="css"]  {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Hide Streamlit default footer/menu */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
+/* Reduce top padding */
+.block-container { padding-top: 2.2rem; padding-bottom: 2.5rem; }
+
+/* Make dividers subtle */
+hr { border-color: rgba(255,255,255,0.10) !important; }
+
+/* Metric cards spacing */
+[data-testid="stMetric"] {
+  background: rgba(17, 24, 39, 0.55);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 12px 14px;
+  border-radius: 14px;
+}
+/* Page background */
+.stApp {
+  background: radial-gradient(1200px circle at 10% 0%, rgba(99,102,241,0.12), transparent 45%),
+              radial-gradient(900px circle at 90% 10%, rgba(34,197,94,0.10), transparent 45%),
+              #0b1220;
+  color: #e5e7eb;
+}
+
+/* Typography */
+h1, h2, h3, .stMarkdown { color: #e5e7eb; }
+.small-muted { color: #9ca3af; font-size: 0.9rem; }
+
+/* Card */
+.card {
+  background: rgba(17, 24, 39, 0.72);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+/* Inputs */
+div[data-baseweb="input"] > div,
+div[data-baseweb="select"] > div {
+  background: rgba(17, 24, 39, 0.85) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  border-radius: 12px !important;
+}
+
+/* Buttons */
+.stButton > button {
+  background: linear-gradient(135deg, #6366f1, #22c55e);
+  color: white;
+  border: 0;
+  border-radius: 12px;
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+}
+.stButton > button:hover { filter: brightness(1.05); }
+.stButton > button:disabled { opacity: 0.45; }
+
+/* Progress bar */
+.stProgress > div > div > div > div {
+  background: linear-gradient(90deg, #22c55e, #6366f1) !important;
+}
+
+/* Success/Error/Info */
+div[data-testid="stAlert"] {
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(17, 24, 39, 0.75);
+}
+</style>
+""", unsafe_allow_html=True)
+
 # -----------------------------
 # Load models (cached)
 # -----------------------------
@@ -54,6 +137,29 @@ def pct(x: float) -> str:
 # UI Header
 # -----------------------------
 st.title("Gold Price Direction Prediction")
+
+st.markdown("""
+<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+  <div>
+    <div style="font-size:1.25rem;font-weight:900;letter-spacing:-0.02em;">Gold Direction Predictor</div>
+    <div class="small-muted" style="margin-top:6px;">
+      Predict tomorrow's <b>UP/DOWN</b> using <b>Ensemble ML</b> + <b>Neural Network</b>.
+    </div>
+  </div>
+  <div style="
+      padding:8px 12px;
+      border-radius:999px;
+      background: rgba(99,102,241,0.18);
+      border: 1px solid rgba(99,102,241,0.35);
+      color:#c7d2fe;
+      font-weight:800;
+      font-size:0.85rem;">
+    Deployed • Streamlit
+  </div>
+</div>
+""", unsafe_allow_html=True)
+st.write("")
+
 st.caption("Predict whether gold price will go **UP** or **DOWN** tomorrow using ML Ensemble + Neural Network.")
 
 # Mode selector
@@ -101,20 +207,76 @@ if mode.startswith("Price mode"):
     st.write("The app will compute daily returns automatically.")
 
     with st.expander("Gold (GC)", expanded=True):
-        gold_y = st.number_input("Gold yesterday", key="gold_y", value=st.session_state.get("gold_y", EX["gold_y"]), step=1.0, format="%.2f")
-        gold_t = st.number_input("Gold today", key="gold_t", value=st.session_state.get("gold_t", EX["gold_t"]), step=1.0, format="%.2f")
+        gold_y = st.number_input(
+            "Gold yesterday (USD/oz)",
+            key="gold_y",
+            value=st.session_state.get("gold_y", EX["gold_y"]),
+            step=1.0,
+            format="%.2f",
+            help="Gold futures price in USD per troy ounce (USD/oz)."
+        )
+        gold_t = st.number_input(
+            "Gold today (USD/oz)",
+            key="gold_t",
+            value=st.session_state.get("gold_t", EX["gold_t"]),
+            step=1.0,
+            format="%.2f",
+            help="Gold futures price in USD per troy ounce (USD/oz)."
+        )
 
     with st.expander("Crude Oil WTI (CL)", expanded=True):
-        oil_y = st.number_input("Oil yesterday", key="oil_y", value=st.session_state.get("oil_y", EX["oil_y"]), step=0.1, format="%.2f")
-        oil_t = st.number_input("Oil today", key="oil_t", value=st.session_state.get("oil_t", EX["oil_t"]), step=0.1, format="%.2f")
+        oil_y = st.number_input(
+            "Oil yesterday (USD/bbl)",
+            key="oil_y",
+            value=st.session_state.get("oil_y", EX["oil_y"]),
+            step=0.1,
+            format="%.2f",
+            help="WTI crude oil price in USD per barrel (USD/bbl)."
+        )
+        oil_t = st.number_input(
+            "Oil today (USD/bbl)",
+            key="oil_t",
+            value=st.session_state.get("oil_t", EX["oil_t"]),
+            step=0.1,
+            format="%.2f",
+            help="WTI crude oil price in USD per barrel (USD/bbl)."
+        )
 
     with st.expander("US Dollar Index (DXY)", expanded=True):
-        dxy_y = st.number_input("DXY yesterday", key="dxy_y", value=st.session_state.get("dxy_y", EX["dxy_y"]), step=0.1, format="%.2f")
-        dxy_t = st.number_input("DXY today", key="dxy_t", value=st.session_state.get("dxy_t", EX["dxy_t"]), step=0.1, format="%.2f")
+        dxy_y = st.number_input(
+            "DXY yesterday (index)",
+            key="dxy_y",
+            value=st.session_state.get("dxy_y", EX["dxy_y"]),
+            step=0.1,
+            format="%.2f",
+            help="US Dollar Index (DXY) value in index points."
+        )
+        dxy_t = st.number_input(
+            "DXY today (index)",
+            key="dxy_t",
+            value=st.session_state.get("dxy_t", EX["dxy_t"]),
+            step=0.1,
+            format="%.2f",
+            help="US Dollar Index (DXY) value in index points."
+        )
 
     with st.expander("S&P500 (US500)", expanded=True):
-        sp_y = st.number_input("S&P500 yesterday", key="sp_y", value=st.session_state.get("sp_y", EX["sp_y"]), step=1.0, format="%.2f")
-        sp_t = st.number_input("S&P500 today", key="sp_t", value=st.session_state.get("sp_t", EX["sp_t"]), step=1.0, format="%.2f")
+        sp_y = st.number_input(
+            "S&P500 yesterday (index)",
+            key="sp_y",
+            value=st.session_state.get("sp_y", EX["sp_y"]),
+            step=1.0,
+            format="%.2f",
+            help="S&P 500 (US500) value in index points."
+        )
+        sp_t = st.number_input(
+            "S&P500 today (index)",
+            key="sp_t",
+            value=st.session_state.get("sp_t", EX["sp_t"]),
+            step=1.0,
+            format="%.2f",
+            help="S&P 500 (US500) value in index points."
+        )
 
     # validate
     errs += validate_price_pair(gold_y, gold_t, "Gold")
@@ -191,17 +353,17 @@ btn = st.button("Predict", disabled=bool(errs))
 
 if btn and X_raw is not None:
     proba, proba_ml, proba_nn = predict_proba_up(X_raw)
-
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("Prediction Result")
 
     # Probability bar (0..1)
     st.progress(float(proba))
-    st.write(f"**Final probability (UP)** = `{proba:.3f}`")
+    st.write(f"**Final probability (UP)** = `{proba*100:.1f}%`")
 
     if proba >= 0.5:
-        st.success("Prediction: **UP tomorrow**")
+        st.caption("Interpretation: the model sees market signals leaning bullish for gold (tomorrow).")
     else:
-        st.error("Prediction: **DOWN tomorrow**")
+        st.caption("Interpretation: the model sees market signals leaning bearish for gold (tomorrow).")
 
     with st.expander("Model breakdown (details)"):
         st.write(f"Ensemble (Voting) P(UP): `{proba_ml:.3f}`")
@@ -209,6 +371,7 @@ if btn and X_raw is not None:
         st.write("Final = average of Ensemble and NN")
 
     st.info("Note: This is a prediction from historical patterns. Financial markets are noisy and predictions can be wrong.")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 st.divider()
 with st.expander("How this app works (quick explanation)"):
